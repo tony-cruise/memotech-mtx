@@ -622,7 +622,7 @@ RLE2R2:
 ; <any other value>    ; raw data
 ;===========================================================================
 
-RLECONTROL: EQU   080h
+RLECONTROL EQU   080h
 
 unRLEWBtoVRAM:
   ; set VRAM addr
@@ -631,12 +631,12 @@ unRLEWBtoVRAM:
   ex de,hl
 
 ANALYZE:
-  ld    A,[HL]         ; get byte
+  ld    A,(HL)         ; get byte
   cp    RLECONTROL
   jr    NZ,WriteByte   ; if raw
 
   inc   HL             ; get next byte
-  ld    A,[HL]
+  ld    A,(HL)
   or    A
   jr    Z,WriteCONTROL ;if A=0 then write one $80  ($80 $0)
   cp    0FFh            ;if A=$FF ($80 $FF)
@@ -646,10 +646,10 @@ ANALYZE:
   inc   A              ;2 to 255
   ld    B,A
   inc   HL
-  ld    A,[HL]         ;get value
+  ld    A,(HL)         ;get value
 
 doRLE:
-  out   [DATA_PORT],A    ;write in VRAM
+  out   (DATA_PORT),A    ;write in VRAM
   nop
   nop
   djnz  doRLE
@@ -661,7 +661,7 @@ WriteCONTROL:
   ld    A,RLECONTROL  ;write CONTROL value
 
 WriteByte:
-  out   [DATA_PORT],A   ;write in VRAM
+  out   (DATA_PORT),A   ;write in VRAM
   ;nop
   inc   HL
   jr    ANALYZE
@@ -1075,11 +1075,11 @@ NMI3:
 ; Timer Routines
 ;
 
-DONE:    EQU 7
-REPEATCOUNT:  EQU 6
-FREE:    EQU 5
-EOT:     EQU 4
-LONG:    EQU 3
+DONE            EQU 7
+REPEATCOUNT     EQU 6
+FREE            EQU 5
+EOT             EQU 4
+LONG            EQU 3
 AMERICA: DB 50
 
 TIME_MGR:
@@ -1747,14 +1747,14 @@ AREA_SONG_IS:
 ;n = # of song data areas to init, passed in B
 ;}
 ; #Defines
-SR1ATN: EQU 090H
-SR2ATN: EQU 0B0H
-SR3ATN: EQU 0D0H
-SRNATN: EQU 0F0H
-SR1FRQ: EQU 080H
-SR2FRQ: EQU 0A0H
-SR3FRQ: EQU 0C0H
-SRNCTL: EQU 0E0H
+SR1ATN EQU $90
+SR2ATN EQU $B0
+SR3ATN EQU $D0
+SRNATN EQU $F0
+SR1FRQ EQU $80
+SR2FRQ EQU $A0
+SR3FRQ EQU $C0
+SRNCTL EQU $E0
 
 INIT_SOUND:
     ; * initialize PTR_TO_LST_OF_SND_ADDRS with value passed in HL
@@ -2245,10 +2245,71 @@ DE_TO_DEST:
     pop de ; DE := Addr of destination byte in SxDATA
     ret
 
+;**************************
+; CheckJoystickKeys:
+; reads the joystick/cursor cluster
+; code to read the 4 directions 
+; with fire/home button
+; joy1_data holds the results for joystick 1
+; Bit 0 = UP
+; Bit 1 = DOWN
+; Bit 2 = LEFT
+; Bit 3 = RIGHT
+; Bit 4 = FIRE/HOME
+;**************************
+CheckJoystickKeys:
+    ; clear previous key states
+    LD A,0
+    LD (joy1_data),A
+    LD (joy2_data),A
+    LD HL,joy1_data
+    ; code to read the 4 directions
+    ; look for UP key press
+    LD A,251                 ; = FB Hex or 1111 1011 so drive line 2 
+    CALL ReadKeyboard               ; test bit 7 of that row
+    RR (HL)         ; C = key pressed, rotate into bit 7
+
+    ; look for DOWN key press
+    LD A,191                 ; = BF = 1011 1111 drive line 6
+    CALL ReadKeyboard               ; test bit 7 of that row 
+    RR (HL)         ; C = key pressed, rotate into bit 7
+
+    ; look for LEFT key press
+    LD A,&F7                 ; 1111 0111 drive line 3
+    CALL ReadKeyboard               ; test bit 7 of that row 
+    RR (HL)         ; C = key pressed, rotate into bit 7
+
+    ; look for RIGHT key press
+    LD A,&EF                 ; 1110 1111 drive line 4
+    CALL ReadKeyboard               ; test bit 7 of that row 
+    RR (HL)         ; C = key pressed, rotate into bit 7
+
+    ; code to read the fire/home button
+    LD A,&DF                 ; 1101 1111 drive line 5
+    CALL ReadKeyboard        ; test bit 7 of that row 
+    RR (HL)         ; C = key pressed, rotate into bit 7
+
+    SRL (HL)
+    SRL (HL)
+    SRL (HL)
+    RET
+
+; the key testing code
+; relies on all the curso/joystick buttons
+; being mapped to keys on the same sense row
+
+ReadKeyboard:
+    OUT (KBD_CTRL),A               ; charge the drive lines
+    IN A,(KBD_CTRL)                ; read the main bank of keys
+    RL A    ; put bit 7 in carry
+    RET
+
+
+ROM_END EQU $
 
 ; Set origin in MTX RAM area
-ORG $0000 
-STACK:  EQU	$a000
+;ORG $0000 
+STACK  EQU	$a000
 
 TickTimer:    DS 1 ; Signal that 3 frames has elapsed
 HalfSecTimer: DS 1 ; Signal that 1/2 second has elapsed
@@ -2290,6 +2351,6 @@ joy2_data: DS 1
 key1_data: DS 1
 key2_data: DS 1
 
-RAMSTART: EQU $ ; Setup where game specific values can start
+RAMSTART EQU $ ; Setup where game specific values can start
 
 ; RAM Usage: 30h+80h+1+16+58+4 = 255 bytes

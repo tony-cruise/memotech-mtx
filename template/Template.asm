@@ -3,16 +3,18 @@
 ; EA Game Template - Memotech MTX ver 1.00 (C) Electric Adventures 2026
 ;
 ;****************************************************************
-FNAME "TEMPLATE.ROM"
 cpu z80
 
 ; Include MTX defined values
-include "MTX-Include.ASM"
+INCLUDE "MTX-Include.ASM"
 
 ; Set header for a MTX Run file
-ORG $40fc
-    dw ROM_START
-    dw ROM_END-ROM_START
+;ORG $40fc
+;    dw ROM_START
+;    dw ROM_END-ROM_START
+
+; set header for a MTX COM file
+ORG $0100
 
 ROM_START:
 	jp START
@@ -26,7 +28,7 @@ NULL_VECTOR:
     ei
     reti
 
-Z80_CTC: equ $08
+Z80_CTC equ $08
 
 ;
 ; Start of application logic
@@ -61,13 +63,11 @@ START:
 	out (Z80_CTC+0),a
 
     ; Init ram
-    ld ix,(lfsr)
 	ld hl,RAMSTART
 	ld de,RAMSTART+1
 	ld bc,RAMEND-RAMSTART-1
 	ld (hl),0
 	ldir
-	ld (lfsr),ix
 
     ; Initialise sound
     CALL DISABLE_PSG
@@ -320,7 +320,7 @@ CHRDAT:
     DB 198,238,124,056,056,056,056,000 ; 35 'Z'
 
 MESG1: ; Template
-    DB 030,015,023,026,022,011,030,015,000,029,017,002,001,001,001
+    DB 030,015,023,026,022,011,030,015,000,023,030,034,000,000,000
 
 SPDATA:
     db 003h,00Fh,01Fh,03Fh,07Fh,07Fh,0FFh,0FFh
@@ -346,8 +346,8 @@ bounce:
 ;**************************************************************************************************
 ; Sound settings
 ;**************************************************************************************************
-SoundDataCount:	  EQU	7
-Len_SoundDataArea: EQU	10*SoundDataCount+1	;7 data areas
+SoundDataCount	  EQU	7
+Len_SoundDataArea EQU	10*SoundDataCount+1	;7 data areas
 SoundAddrs:
 	DW	bounce,SoundDataArea     ; 1  ball bounce sound
 	DW  0,0
@@ -358,7 +358,7 @@ SoundAddrs:
 
 include "MTX-Lib.ASM"
 
-ROM_END:	EQU $
+;ROM_END:	EQU $
 
 ;**************************************************************************************************
 ; RAM Definitions
@@ -371,4 +371,4 @@ BALL:       DS 2
 ; Sound Data area - 7 songs
 SoundDataArea: DS Len_SoundDataArea
 
-
+RAMEND EQU $
