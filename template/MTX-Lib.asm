@@ -1050,7 +1050,7 @@ NMI3:
     CP 0cdh
     JR NZ,NMI2
     CALL VDU_HOOK
- NMI2:
+NMI2:
 	CALL	TIME_MGR
 
 ;Now restore everything
@@ -2275,17 +2275,17 @@ CheckJoystickKeys:
     RR (HL)         ; C = key pressed, rotate into bit 7
 
     ; look for LEFT key press
-    LD A,&F7                 ; 1111 0111 drive line 3
+    LD A,$F7                 ; 1111 0111 drive line 3
     CALL ReadKeyboard               ; test bit 7 of that row 
     RR (HL)         ; C = key pressed, rotate into bit 7
 
     ; look for RIGHT key press
-    LD A,&EF                 ; 1110 1111 drive line 4
+    LD A,$EF                 ; 1110 1111 drive line 4
     CALL ReadKeyboard               ; test bit 7 of that row 
     RR (HL)         ; C = key pressed, rotate into bit 7
 
     ; code to read the fire/home button
-    LD A,&DF                 ; 1101 1111 drive line 5
+    LD A,$DF                 ; 1101 1111 drive line 5
     CALL ReadKeyboard        ; test bit 7 of that row 
     RR (HL)         ; C = key pressed, rotate into bit 7
 
@@ -2308,7 +2308,8 @@ ReadKeyboard:
 ROM_END EQU $
 
 ; Set origin in MTX RAM area
-;ORG $0000 
+
+;    ORG $0000 
 STACK  EQU	$a000
 
 TickTimer:    DS 1 ; Signal that 3 frames has elapsed

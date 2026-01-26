@@ -3,10 +3,10 @@
 ; EA Game Template - Memotech MTX ver 1.00 (C) Electric Adventures 2026
 ;
 ;****************************************************************
-cpu z80
+;cpu z80
 
 ; Include MTX defined values
-INCLUDE "MTX-Include.ASM"
+    INCLUDE "MTX-Include.ASM"
 
 ; Set header for a MTX Run file
 ;ORG $40fc
@@ -14,7 +14,7 @@ INCLUDE "MTX-Include.ASM"
 ;    dw ROM_END-ROM_START
 
 ; set header for a MTX COM file
-ORG $0100
+    ORG $0100
 
 ROM_START:
 	jp START
@@ -85,10 +85,6 @@ START:
     ; initialise joysticks and keyboard data
     xor a
 	ld (joy1_data),a
-	ld (joy2_data),a
-	ld a,$0f
-	ld (key1_data),a
-	ld (key2_data),a
 
     LD A,1
     LD (SKIPMUSIC),A
@@ -356,7 +352,7 @@ SoundAddrs:
 ; Standard Libraries
 ;**************************************************************************************************
 
-include "MTX-Lib.ASM"
+    include "MTX-Lib.ASM"
 
 ;ROM_END:	EQU $
 
@@ -364,7 +360,7 @@ include "MTX-Lib.ASM"
 ; RAM Definitions
 ;**************************************************************************************************
 
-ORG RAMSTART
+    ORG RAMSTART
 
 BALL:       DS 2
 

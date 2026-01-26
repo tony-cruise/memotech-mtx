@@ -1,8 +1,9 @@
-rem Memotech MTX Template Make file (RASM x64 version)
+rem Memotech MTX Template Make file (RASM x64 or SJASMPlus version)
 
 @rem assemble source file %1%.asm to binary %1%.com
 
-rasm_x64.exe %1.asm -oa -or -s
+sjasmplus.exe %1.asm
+rem rasm_x64.exe %1.asm -oa -or -s
 
 if exists %1.com del %1.com
 
