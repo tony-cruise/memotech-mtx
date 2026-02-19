@@ -200,8 +200,8 @@ MLOOP:
 ; Move the player
 MOVE_PLAYER:
     LD A,(joy1_data)
-    BIT 3,A
-    JR NZ,NRIGHT
+    BIT JOY_RIGHT,A
+    JR Z,NRIGHT
     ; move to the right
     LD A,(SPRTBL+5)
     CP 239
@@ -210,8 +210,8 @@ MOVE_PLAYER:
     LD (SPRTBL+5),A
     RET
 NRIGHT:
-    BIT 2,A
-    RET NZ
+    BIT JOY_LEFT,A
+    RET Z
     ; move to the left
     LD A,(SPRTBL+5)
     CP 0

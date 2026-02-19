@@ -87,3 +87,9 @@ VRAM_NAME          EQU $1800
 VRAM_SPRATTR       EQU $1B00
 VRAM_COLOR         EQU $2000
 VRAM_SPRGEN        EQU $3800
+
+; joystick data bits
+JOY_UP    EQU 0
+JOY_DOWN  EQU 2 
+JOY_LEFT  EQU 3
+JOY_RIGHT EQU 1

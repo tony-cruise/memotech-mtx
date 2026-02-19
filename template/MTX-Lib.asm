@@ -231,7 +231,7 @@ RTV3:
 ;===========================================================================
 dan1rvram:
     ; Set Write in VRAM at DE
-    ld      c, $BF
+    ld      c, CTRL_PORT
     out     (c), e
     set     6, d
     out     (c), d
@@ -347,14 +347,14 @@ dan1r_copy_from_offset:
     set     6,d
 dan1r_copybytes_loop:
     push    bc
-    ld      c, $BF
+    ld      c, CTRL_PORT
     out     (c), l
     nop
     out     (c), h
     inc     hl
     nop
     nop
-    in      a, ($BE)
+    in      a, (DATA_PORT)
     nop
     nop
     nop
@@ -364,7 +364,7 @@ dan1r_copybytes_loop:
     inc     de
     nop
     nop
-    out     ($BE), a
+    out     (DATA_PORT), a
     pop     bc
     dec     bc
     ld      a,b
@@ -376,7 +376,7 @@ dan1r_copybytes_loop:
     jp      dan1r_main_loop
     
 dan1r_literals:
-    ld      c, $BE
+    ld      c, DATA_PORT
 dan1r_literals_loop:
     outi
     inc     de
@@ -1058,6 +1058,7 @@ NMI3:
     CALL VDU_HOOK
 NMI2:
 	CALL	TIME_MGR
+    CALL POLL_KEYBOARD
 
 ;Now restore everything
 	pop iy
