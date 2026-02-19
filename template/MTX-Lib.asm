@@ -15,7 +15,7 @@ DISABLE_NMI:
     di
     ld bc,$a201
     call WRTVDP
-    ;ei
+    ei
     ret
 
 ENABLE_NMI:
@@ -992,7 +992,7 @@ RLP2:
 ;
 ; NMI routine
 ;
-NMI_Handler:
+;NMI_Handler:
 ;	push hl
 ;	push af
 	
@@ -1012,12 +1012,16 @@ NMI_Handler:
 ;.skip:
 ;	pop  af			
 ;	pop  hl			
-	retn		
+;	retn		
+
+ctc_reti:
+    reti
 
 ;
 ; Interrupt routine
 ;
-Interrupt:
+;Interrupt:
+NMI_Handler:
 	push af
 	push bc
 	push de
@@ -1030,6 +1034,8 @@ Interrupt:
 	push hl
 	push ix
 	push iy
+
+    call ctc_reti	;Call the CTC routine, which will reset the interrupt and return if it was a CTC interrupt
 
 	in a, (CTRL_PORT)
 
