@@ -115,19 +115,19 @@ START:
     LD HL,TILESET_1_PAT_D1
     LD DE,VRAM_PATTERN
     CALL dan1rvram
-    LD HL,TILESET_1_PAT_D1
+    LD HL,TILESET_2_PAT_D1
     LD DE,VRAM_PATTERN + 8*256
     CALL dan1rvram
-    LD HL,TILESET_1_PAT_D1
+    LD HL,TILESET_3_PAT_D1
     LD DE,VRAM_PATTERN + 16*256
     CALL dan1rvram
     LD HL,TILESET_1_COL_D1
     LD DE,VRAM_COLOR
     CALL dan1rvram
-    LD HL,TILESET_1_COL_D1
+    LD HL,TILESET_2_COL_D1
     LD DE,VRAM_COLOR + 8*256
     CALL dan1rvram
-    LD HL,TILESET_1_COL_D1
+    LD HL,TILESET_3_COL_D1
     LD DE,VRAM_COLOR + 16*256
     CALL dan1rvram
 
@@ -151,7 +151,7 @@ MAIN_SCREEN:
     ; Clear the screen
     CALL CLEARPAT
     ; load compressed screen layout
-    LD HL,SL__D1
+    LD HL,SL_SCREENLAYOUT_1_D1
     LD DE,VRAM_NAME
     CALL dan1rvram  
 
