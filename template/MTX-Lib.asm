@@ -15,11 +15,21 @@ DISABLE_NMI:
     di
     ld bc,$a201
     call WRTVDP
-    ei
+    ld hl,mode
+    set 0,(hl)
     ret
 
 ENABLE_NMI:
     di
+    push af
+    push hl
+    ld hl,mode
+    res 0,(hl)
+    nop
+    bit 1,(hl)
+    jp nz,NMI0
+    pop hl
+    pop af
     ld bc,$e201
     call WRTVDP
     ei
@@ -38,6 +48,8 @@ SDNT1:
     xor     a
 SDNT2:
     out     (c),a
+    nop
+    nop
     nop
     inc     a
     jp      nz,SDNT2
@@ -220,6 +232,7 @@ RTV3:
     out (c),d
     nop
     nop
+    nop
     djnz RTV3
     jp RTV1
 
@@ -354,6 +367,7 @@ dan1r_copybytes_loop:
     inc     hl
     nop
     nop
+    nop
     in      a, (DATA_PORT)
     nop
     nop
@@ -362,6 +376,7 @@ dan1r_copybytes_loop:
     nop
     out     (c), d
     inc     de
+    nop
     nop
     nop
     out     (DATA_PORT), a
@@ -379,6 +394,8 @@ dan1r_literals:
     ld      c, DATA_PORT
 dan1r_literals_loop:
     outi
+    nop
+    nop
     inc     de
     jr      nz, dan1r_literals_loop
     ret
@@ -572,6 +589,7 @@ RLE2V1:
     out     (c),a
     nop
     nop
+    nop
     djnz    RLE2V1
     jr      RLE2V0
 RLE2V2:
@@ -650,6 +668,7 @@ ANALYZE:
 
 doRLE:
   out   (DATA_PORT),A    ;write in VRAM
+  nop
   nop
   nop
   djnz  doRLE
@@ -741,6 +760,7 @@ FILVRM:
 .LOOP:
     LD A,E
     OUT (DATA_PORT),A
+    NOP
     DEC BC
     LD A,B
     OR C
@@ -1022,10 +1042,32 @@ ctc_reti:
 ;
 ;Interrupt:
 NMI_Handler:
+
+    call ctc_reti	;Call the CTC routine, which will reset the interrupt and return if it was a CTC interrupt
+
 	push af
+	push hl
+
+	; update our time counter
+    LD HL,(TIME)
+    DEC HL
+    LD (TIME),HL
+
+    LD HL,(MODE)
+    BIT 0, (HL)
+    JR Z,NMI1
+
+    SET 1,(HL)
+    pop hl
+    pop af
+    retn
+NMI0:
+    RES 1,(HL)
+
+NMI1:
+
 	push bc
 	push de
-	push hl
 	exx
 	ex af, af'
 	push af
@@ -1035,15 +1077,11 @@ NMI_Handler:
 	push ix
 	push iy
 
-    call ctc_reti	;Call the CTC routine, which will reset the interrupt and return if it was a CTC interrupt
 
-	in a, (CTRL_PORT)
+	in a, (CTRL_PORT) ; read VDP status register, and thus clear NMI flag
+    LD (VDPSTATUS),a ; save the VDP status register contents
 
-	; update our time counter
-    LD HL,(TIME)
-    DEC HL
-    LD (TIME),HL
-    ;Now we can safely call any OS7 calls
+    ;Now we can safely do other calls
     LD A,(SKIPMUSIC)
     CP 0
     JP NZ,NMI3
@@ -1058,7 +1096,7 @@ NMI3:
     CALL VDU_HOOK
 NMI2:
 	CALL	TIME_MGR
-    CALL POLL_KEYBOARD
+    CALL POLL_KEYBOARD ; Poll the keyboard to capture player one and two key presses
 
 ;Now restore everything
 	pop iy
@@ -1069,9 +1107,9 @@ NMI2:
 	pop af
 	exx
 	ex af, af'
-	pop hl
 	pop de
 	pop bc
+	pop hl
 	pop af
 
     EI
@@ -2334,6 +2372,8 @@ TIMER_TABLE:	    DS 16	;Pointer to timers table (16 timers)
 TIMER_DATA_BLOCK:	DS 58	;Pointer to timers table for long timers
                             ;4 bytes * 16 longer than 3 sec timers
 VDU_HOOK: DS 4 ; NMI VDU Delayed writes hook
+VDPSTATUS: DS 1 ; copy of VDP status register for NMI use
+MODE: DS 1 ; current interrupt mode for NMI use
 
 TIMER_LENGTH: DS 1
 TEST_SIG_NUM: DS 1
